@@ -1,0 +1,7 @@
+version: 1
+packages:
+  - path: "db"
+    name: "db"
+    engine: "postgresql"
+    schema: "db/continents/schema.sql"
+    queries: "db/continents/query.sql"
