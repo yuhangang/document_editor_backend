@@ -1,0 +1,37 @@
+[
+ {
+  "Code": "AN",
+  "Name": "Antarctica",
+  "countries": null
+ },
+ {
+  "Code": "AS",
+  "Name": "Asia",
+  "countries": null
+ },
+ {
+  "Code": "EU",
+  "Name": "Europe",
+  "countries": null
+ },
+ {
+  "Code": "NA",
+  "Name": "North America",
+  "countries": null
+ },
+ {
+  "Code": "OC",
+  "Name": "Oceania",
+  "countries": null
+ },
+ {
+  "Code": "SA",
+  "Name": "South America",
+  "countries": null
+ },
+ {
+  "Code": "AF",
+  "Name": "Africa",
+  "countries": null
+ }
+]

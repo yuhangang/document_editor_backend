@@ -12,7 +12,7 @@ import (
 type Container interface {
 	GetRepository() repository.Repository
 	GetRepo() repo.Repo
-	GetConfig() *config.Config
+	GetConfig() config.Config
 	GetLogger() logger.Logger
 	GetEnv() string
 }
@@ -20,7 +20,7 @@ type Container interface {
 // container struct is for sharing data which such as database setting, the setting of application and logger in overall this application.
 type container struct {
 	rep     repository.Repository
-	repo    repo.Repo
+	repo    *repo.Repo
 	session session.Session
 	config  *config.Config
 	logger  logger.Logger
@@ -28,7 +28,7 @@ type container struct {
 }
 
 // NewContainer is constructor.
-func NewContainer(rep repository.Repository, repo repo.Repo, config *config.Config, logger logger.Logger, env string) Container {
+func NewContainer(rep repository.Repository, repo *repo.Repo, config *config.Config, logger logger.Logger, env string) Container {
 	return &container{rep: rep, repo: repo, config: config, logger: logger, env: env}
 }
 
@@ -39,7 +39,7 @@ func (c *container) GetRepository() repository.Repository {
 
 // GetReporeturns the object of repo.
 func (c *container) GetRepo() repo.Repo {
-	return c.repo
+	return *c.repo
 }
 
 // GetSession returns the object of session.
@@ -48,8 +48,8 @@ func (c *container) GetSession() session.Session {
 }
 
 // GetConfig returns the object of configuration.
-func (c *container) GetConfig() *config.Config {
-	return c.config
+func (c *container) GetConfig() config.Config {
+	return *c.config
 }
 
 // GetLogger returns the object of logger.

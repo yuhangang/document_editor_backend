@@ -16,10 +16,11 @@ func Init(e *echo.Echo, container container.Container, repo *repo.Repo) {
 }
 
 func setLocationController(e *echo.Echo, container container.Container, repo *repo.Repo) {
-	ph := controller.NewContinentHandler(e.StdLogger, container)
+	ph := controller.NewLocationController(e.StdLogger, container)
 	e.GET("/continents",
 		func(c echo.Context) error { return ph.GetContinents(c) })
-	//e.GET("/countries", ph.GetCountries)
+	e.GET("/countries", func(c echo.Context) error { return ph.GetCountries(c) })
+	e.GET("/cities", func(c echo.Context) error { return ph.GetCities(c) })
 }
 
 //func setSwagger(container container.Container, e *echo.Echo) {

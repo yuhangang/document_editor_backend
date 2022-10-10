@@ -5,8 +5,9 @@ import (
 )
 
 type Continent struct {
-	Code string `gorm:"primaryKey"`
-	Name string `gorm:"unique"`
+	Code      string    `gorm:"primaryKey"`
+	Name      string    `gorm:"unique"`
+	Countries []Country `json:"countries"`
 }
 
 type RecordContinent struct {

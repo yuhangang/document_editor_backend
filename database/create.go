@@ -48,6 +48,7 @@ func CreateDB() (*gorm.DB, error) {
 	// Create
 	db.Create(&model.Continent{Code: "AS", Name: "Asia"})
 	db.Create(&model.Country{Code: "MY", Name: "Malaysia", Capital: "Kuala Lumpur", Native: "Malay", ContinentID: "AS"})
+	db.Create(&model.City{Name: "Kuala Lumpur", CountryID: "MY", Lat: 3.1578, Lng: 101.7119})
 
 	// Read
 	var continent model.Continent

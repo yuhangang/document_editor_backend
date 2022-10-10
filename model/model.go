@@ -5,14 +5,16 @@ type Country struct {
 	Name        string `gorm:"unique"`
 	Capital     string `gorm:"unique"`
 	Native      string
-	ContinentID string
-	Continent   Continent `gorm:"references:Code"`
+	ContinentID string `gorm:"foreignkey:continent_id"`
+	//Continent   Continent
+	Cities []City `json:"cities"`
 }
 
 type City struct {
-	Name      string `gorm:"primaryKey"`
-	CountryID string
-	Country   Country `gorm:"references:Code"`
-	lat       float32
-	lng       float64
+	Name string `gorm:"primaryKey"`
+	//Country   Country
+	CountryID string `gorm:"foreignkey:country_id"`
+	Capital   string
+	Lat       float64
+	Lng       float64
 }

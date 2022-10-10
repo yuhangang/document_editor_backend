@@ -1,4 +1,14 @@
 
+postgres:
+  db_host: localhost
+  db_port: 5432
+  db_name: weatherapp
+  db_username: postgres
+  db_password: postgresPass
+  db_sslmode: disable
+  db_timezone: Asia/Singapore
+  db_migration: true
+
 database:
   dialect: sqlite3
   host:  book.db

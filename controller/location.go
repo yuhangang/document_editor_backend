@@ -9,38 +9,43 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ContinentController interface {
+type LocationController interface {
 	GetContinents(c echo.Context) error
 	GetCountries(c echo.Context) error
 	GetCities(c echo.Context) error
 }
 
 // Products is a http.Handler
-type continentController struct {
+type locationController struct {
 	l         *log.Logger
 	container container.Container
 }
 
-func NewContinentHandler(l *log.Logger, container container.Container) ContinentController {
-	return &continentController{l, container}
+func NewLocationController(l *log.Logger, container container.Container) LocationController {
+	return &locationController{l, container}
 }
 
-func (p *continentController) GetContinents(c echo.Context) error {
+func (p *locationController) GetContinents(c echo.Context) error {
 	callback := c.QueryParam("callback")
 	var continents []model.Continent
-	err := p.container.GetRepo().DB.Find(&continents).Error
+	err := p.container.GetRepo().DB.Model(&model.Continent{}).Preload("Countries.Cities").Find(&continents).Error
+	// err := p.container.GetRepo().DB.Table("Continents").
+	// 	Joins("INNER JOIN Countries c ON c.continent_id = Continents.code").
+	// 	Select("Continents.code, Continents.name").
+	// 	Find(&continents)
 
 	if err != nil {
 		p.l.Fatal(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
 	}
+
 	return c.JSONP(http.StatusOK, callback, &continents)
 }
 
-func (p *continentController) GetCountries(c echo.Context) error {
+func (p *locationController) GetCountries(c echo.Context) error {
 	callback := c.QueryParam("callback")
 	var countries []model.Country
-	err := p.container.GetRepo().DB.Find(&countries).Error
+	err := p.container.GetRepo().DB.Model(&model.Country{}).Preload("Cities").Find(&countries).Error
 
 	if err != nil {
 		p.l.Fatal(err)
@@ -49,7 +54,7 @@ func (p *continentController) GetCountries(c echo.Context) error {
 	return c.JSONP(http.StatusOK, callback, &countries)
 }
 
-func (p *continentController) GetCities(c echo.Context) error {
+func (p *locationController) GetCities(c echo.Context) error {
 	callback := c.QueryParam("callback")
 	var cities []model.City
 	err := p.container.GetRepo().DB.Find(&cities).Error
