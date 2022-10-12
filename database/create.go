@@ -44,17 +44,5 @@ func CreateDB() (*gorm.DB, error) {
 	db.Migrator().CreateTable(&model.Continent{})
 	db.Migrator().CreateTable(&model.Country{})
 	db.Migrator().CreateTable(&model.City{})
-
-	// Create
-	db.Create(&model.Continent{Code: "AS", Name: "Asia"})
-	db.Create(&model.Country{Code: "MY", Name: "Malaysia", Capital: "Kuala Lumpur", Native: "Malay", ContinentID: "AS"})
-	db.Create(&model.City{Name: "Kuala Lumpur", CountryID: "MY", Lat: 3.1578, Lng: 101.7119})
-
-	// Read
-	var continent model.Continent
-	db.First(&continent, "code = ?", "AS") // find product with code D42
-
-	// Update - update multiple fields
-	db.Model(&continent).Updates(model.Continent{Code: "AS", Name: "Asia new"})
 	return db, nil
 }

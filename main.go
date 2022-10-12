@@ -3,14 +3,13 @@ package main
 import (
 	"echoapp/config"
 	"echoapp/container"
-	data_processing "echoapp/data/processing"
 	"echoapp/database"
 	"echoapp/logger"
+	"echoapp/migration"
 	"echoapp/repo"
 	"echoapp/repository"
 	"echoapp/router"
 	"embed"
-	"fmt"
 
 	"log"
 
@@ -34,13 +33,6 @@ const (
 )
 
 func main() {
-	processingDataErr := data_processing.ExecuteProcessing()
-	if processingDataErr != nil {
-		log.Fatal(processingDataErr)
-	} else {
-		fmt.Println("Processing Data Successfully!")
-	}
-
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
@@ -60,6 +52,8 @@ func main() {
 		repo.NewRepo(db)
 
 	container := container.NewContainer(rep, &repo, conf, logger, env)
+
+	migration.InitMasterData(container)
 	//ph := controller.NewContinentHandler(e.StdLogger, container)
 	//e.GET("/continents", ph.GetContinents)
 	//e.GET("/countries", ph.GetCountries)

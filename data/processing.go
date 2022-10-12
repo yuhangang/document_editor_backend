@@ -1,14 +1,25 @@
-package data_processing
+package main
 
 import (
 	"echoapp/model"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
-func ExecuteProcessing() error {
+func main() {
+	processingDataErr := executeProcessing()
+	if processingDataErr != nil {
+		log.Fatal(processingDataErr)
+	} else {
+		fmt.Println("Processing Data Successfully!")
+	}
+
+}
+
+func executeProcessing() error {
 	continents, processContinentDataError := processContinentData()
 	if processContinentDataError != nil {
 		return processContinentDataError
@@ -23,7 +34,7 @@ func ExecuteProcessing() error {
 	if processCityDataError != nil {
 		return processCityDataError
 	}
-	writeCitiesDataError := writeDataToJsonFile(cities, "data/processed/world_cities.json")
+	writeCitiesDataError := writeDataToJsonFile(cities, "data/processed/cities.json")
 	if writeCitiesDataError != nil {
 		return writeCitiesDataError
 	}
@@ -33,7 +44,7 @@ func ExecuteProcessing() error {
 		return processCountryDataError
 	}
 
-	writeCountryDataError := writeDataToJsonFile(countries, "data/processed/world_countries.json")
+	writeCountryDataError := writeDataToJsonFile(countries, "data/processed/countries.json")
 	if writeCountryDataError != nil {
 		return writeCitiesDataError
 	}
@@ -55,7 +66,7 @@ func writeDataToJsonFile(data any, directory string) error {
 
 func processContinentData() ([]model.Continent, error) {
 	// Open our jsonFile
-	jsonFile, err := os.Open("data/continents.json")
+	jsonFile, err := os.Open("data/raw/continents.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
@@ -72,7 +83,7 @@ func processContinentData() ([]model.Continent, error) {
 		continents = append(continents, continent)
 	}
 
-	fmt.Println("Successfully Opened continents.json")
+	fmt.Println("Successfully processed continents.json")
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
 	return continents, nil
@@ -80,7 +91,7 @@ func processContinentData() ([]model.Continent, error) {
 
 func processCityData() ([]model.City, error) {
 	// Open our jsonFile
-	jsonFile, err := os.Open("data/world_cities.json")
+	jsonFile, err := os.Open("data/raw/cities.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
@@ -103,7 +114,7 @@ func processCityData() ([]model.City, error) {
 		cities = append(cities, city)
 	}
 
-	fmt.Println("Successfully Opened world_cities.json")
+	fmt.Println("Successfully processed cities.json")
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
 	return cities, nil
@@ -111,7 +122,7 @@ func processCityData() ([]model.City, error) {
 
 func processCountryData() ([]model.Country, error) {
 	// Open our jsonFile
-	jsonFile, err := os.Open("data/countries.json")
+	jsonFile, err := os.Open("data/raw/countries.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
@@ -136,7 +147,7 @@ func processCountryData() ([]model.Country, error) {
 		countries = append(countries, country)
 	}
 
-	fmt.Println("Successfully Opened countries.json")
+	fmt.Println("Successfully processed countries.json")
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
 	return countries, nil

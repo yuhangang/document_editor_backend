@@ -1,10 +1,38 @@
 package migration
 
-import "echoapp/container"
+import (
+	"echoapp/container"
+	"echoapp/model"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+
+	"gorm.io/gorm"
+)
 
 // InitMasterData creates the master data used in this application.
 func InitMasterData(container container.Container) {
+	errs := make(chan error)
+	fmt.Println("init Master data ...")
 	if container.GetConfig().Extension.MasterGenerator {
+
+		initContinentsErr := initContinentData(container, errs)
+		if initContinentsErr != nil {
+			log.Fatal(initContinentsErr)
+		}
+		initCountriesErr := initCountriesData(container, errs)
+		if initCountriesErr != nil {
+			log.Fatal(initCountriesErr)
+		}
+		initCitiesErr := initCitiesData(container, errs)
+		if initCitiesErr != nil {
+
+			fmt.Println(1000, initCitiesErr)
+
+		}
+
 		//rep := container.GetRepository()
 
 		// r := model.NewAuthority("Admin")
@@ -26,4 +54,55 @@ func InitMasterData(container container.Container) {
 		// f = model.NewFormat("e-Book")
 		// _, _ = f.Create(rep)
 	}
+}
+
+func initContinentData(container container.Container, errs chan error) error {
+	jsonFile, err := os.Open("data/processed/continents.json")
+	if err != nil {
+		return err
+	}
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var continents []model.Continent
+	err = json.Unmarshal(byteValue, &continents)
+	container.GetRepo().DB.Create(&continents)
+	return nil
+}
+
+func initCountriesData(container container.Container, errs chan error) error {
+	jsonFile, err := os.Open("data/processed/countries.json")
+	if err != nil {
+		return err
+	}
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var countries []model.Country
+	err = json.Unmarshal(byteValue, &countries)
+	container.GetRepo().DB.Create(&countries)
+	return nil
+}
+
+func initCitiesData(container container.Container, errs chan error) error {
+	jsonFile, err := os.Open("data/processed/cities.json")
+	if err != nil {
+		return err
+	}
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var cities []model.City
+	err = json.Unmarshal(byteValue, &cities)
+	fmt.Println(len(cities))
+
+	const size = 100
+	var j int
+	for i := 0; i < len(cities); i += size {
+		j += size
+		if j > len(cities) {
+			j = len(cities)
+		}
+		db := container.GetRepo().DB.Session(&gorm.Session{CreateBatchSize: len(cities[i:j])})
+		db.Create(cities[i:j])
+	}
+
+	return nil
 }
