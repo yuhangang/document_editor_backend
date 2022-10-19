@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"echoapp/constant"
 	"echoapp/container"
 	"echoapp/model"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -13,6 +15,7 @@ type LocationController interface {
 	GetContinents(c echo.Context) error
 	GetCountries(c echo.Context) error
 	GetCities(c echo.Context) error
+	LoadMasterData() ([]model.Continent, error)
 }
 
 // Products is a http.Handler
@@ -27,12 +30,16 @@ func NewLocationController(l *log.Logger, container container.Container) Locatio
 
 func (p *locationController) GetContinents(c echo.Context) error {
 	callback := c.QueryParam("callback")
-	var continents []model.Continent
-	err := p.container.GetRepo().DB.Model(&model.Continent{}).Preload("Countries.Cities").Find(&continents).Error
-	// err := p.container.GetRepo().DB.Table("Continents").
-	// 	Joins("INNER JOIN Countries c ON c.continent_id = Continents.code").
-	// 	Select("Continents.code, Continents.name").
-	// 	Find(&continents)
+
+	entry, cacheError := p.container.GetBigCache().Get(constant.Cache_continent_key)
+	if cacheError != nil {
+		p.l.Fatal(cacheError)
+
+	} else {
+		return c.JSONBlob(http.StatusOK, entry)
+	}
+
+	continents, err := p.LoadMasterData()
 
 	if err != nil {
 		p.l.Fatal(err)
@@ -64,4 +71,26 @@ func (p *locationController) GetCities(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
 	}
 	return c.JSONP(http.StatusOK, callback, &cities)
+}
+
+func (p *locationController) LoadMasterData() ([]model.Continent, error) {
+	// Pre cached query of master data
+
+	var continents []model.Continent
+	queryError := p.container.GetRepo().DB.Model(&model.Continent{}).Preload("Countries.Cities").Find(&continents).Error
+	if queryError == nil {
+		jsonByte, jsonError := json.Marshal(continents)
+		if jsonError == nil {
+
+			p.container.GetBigCache().Set(constant.Cache_continent_key, jsonByte)
+			return continents, nil
+		} else {
+
+			return nil, queryError
+		}
+	} else {
+
+		return nil, queryError
+	}
+
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/valyala/fasttemplate"
-
 	"gopkg.in/boj/redistore.v1"
 )
 

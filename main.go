@@ -3,16 +3,16 @@ package main
 import (
 	"echoapp/config"
 	"echoapp/container"
-	"echoapp/database"
 	"echoapp/logger"
 	"echoapp/migration"
 	"echoapp/repo"
 	"echoapp/repository"
 	"echoapp/router"
 	"embed"
-
 	"log"
+	"time"
 
+	"github.com/allegro/bigcache/v3"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	e := echo.New()
-	db, err := database.CreateDB()
+	db, err := migration.CreateDB()
 
 	if err != nil {
 		log.Fatal(err)
@@ -50,8 +50,12 @@ func main() {
 	rep := repository.NewLocationRepository(logger, conf, db)
 	repo :=
 		repo.NewRepo(db)
-
-	container := container.NewContainer(rep, &repo, conf, logger, env)
+	bigCache, bigCacheInitError := bigcache.NewBigCache(bigcache.DefaultConfig(24 * time.Hour))
+	if bigCacheInitError != nil {
+		log.Fatal(bigCacheInitError)
+		return
+	}
+	container := container.NewContainer(rep, &repo, conf, bigCache, logger, env)
 
 	migration.InitMasterData(container)
 	//ph := controller.NewContinentHandler(e.StdLogger, container)

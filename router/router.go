@@ -21,6 +21,8 @@ func setLocationController(e *echo.Echo, container container.Container, repo *re
 		func(c echo.Context) error { return ph.GetContinents(c) })
 	e.GET("/countries", func(c echo.Context) error { return ph.GetCountries(c) })
 	e.GET("/cities", func(c echo.Context) error { return ph.GetCities(c) })
+
+	ph.LoadMasterData()
 }
 
 //func setSwagger(container container.Container, e *echo.Echo) {

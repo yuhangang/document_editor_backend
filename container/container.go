@@ -6,6 +6,8 @@ import (
 	"echoapp/repo"
 	"echoapp/repository"
 	"echoapp/session"
+
+	"github.com/allegro/bigcache/v3"
 )
 
 // Container represents a interface for accessing the data which sharing in overall application.
@@ -15,21 +17,23 @@ type Container interface {
 	GetConfig() config.Config
 	GetLogger() logger.Logger
 	GetEnv() string
+	GetBigCache() *bigcache.BigCache
 }
 
 // container struct is for sharing data which such as database setting, the setting of application and logger in overall this application.
 type container struct {
-	rep     repository.Repository
-	repo    *repo.Repo
-	session session.Session
-	config  *config.Config
-	logger  logger.Logger
-	env     string
+	rep      repository.Repository
+	repo     *repo.Repo
+	session  session.Session
+	config   *config.Config
+	bigCache *bigcache.BigCache
+	logger   logger.Logger
+	env      string
 }
 
 // NewContainer is constructor.
-func NewContainer(rep repository.Repository, repo *repo.Repo, config *config.Config, logger logger.Logger, env string) Container {
-	return &container{rep: rep, repo: repo, config: config, logger: logger, env: env}
+func NewContainer(rep repository.Repository, repo *repo.Repo, config *config.Config, bigCache *bigcache.BigCache, logger logger.Logger, env string) Container {
+	return &container{rep: rep, repo: repo, config: config, logger: logger, bigCache: bigCache, env: env}
 }
 
 // GetRepository returns the object of repository.
@@ -60,4 +64,9 @@ func (c *container) GetLogger() logger.Logger {
 // GetEnv returns the running environment.
 func (c *container) GetEnv() string {
 	return c.env
+}
+
+// GetBigCache returns the object of caching.
+func (c *container) GetBigCache() *bigcache.BigCache {
+	return c.bigCache
 }
