@@ -41,8 +41,12 @@ func CreateDB() (*gorm.DB, error) {
 	db.Migrator().DropTable(&model.Continent{})
 	db.Migrator().DropTable(&model.Country{})
 	db.Migrator().DropTable(&model.City{})
+	db.Migrator().DropTable(&model.DeviceInfo{})
+	db.Migrator().DropTable(&model.DocumentFile{})
 	db.Migrator().CreateTable(&model.Continent{})
 	db.Migrator().CreateTable(&model.Country{})
 	db.Migrator().CreateTable(&model.City{})
+	db.Migrator().CreateTable(&model.DeviceInfo{})
+	db.Migrator().CreateTable(&model.DocumentFile{})
 	return db, nil
 }

@@ -16,13 +16,24 @@ func Init(e *echo.Echo, container container.Container, repo *repo.Repo) {
 }
 
 func setLocationController(e *echo.Echo, container container.Container, repo *repo.Repo) {
-	ph := controller.NewLocationController(e.StdLogger, container)
-	e.GET("/continents",
-		func(c echo.Context) error { return ph.GetContinents(c) })
-	e.GET("/countries", func(c echo.Context) error { return ph.GetCountries(c) })
-	e.GET("/cities", func(c echo.Context) error { return ph.GetCities(c) })
+	locationController := controller.NewLocationController(e.StdLogger, container)
+	userController := controller.NewUserController(e.StdLogger, container)
+	documentFileController := controller.NewDocumentFileController(e.StdLogger, container)
 
-	ph.LoadMasterData()
+	e.GET("/continents",
+		func(c echo.Context) error { return locationController.GetContinents(c) })
+	e.GET("/countries", func(c echo.Context) error { return locationController.GetCountries(c) })
+	e.GET("/cities", func(c echo.Context) error { return locationController.GetCities(c) })
+
+	e.GET("/devices", func(c echo.Context) error { return userController.GetDevices(c) })
+	e.POST("/devices", func(c echo.Context) error { return userController.CreateUserDevice(c) })
+
+	e.GET("/documents", func(c echo.Context) error { return documentFileController.GetDocumentFiles(c) })
+	e.POST("/documents", func(c echo.Context) error { return documentFileController.CreateDocumentFile(c) })
+	e.PUT("/documents", func(c echo.Context) error { return documentFileController.UpdateDocumentFile(c) })
+
+	// initial invoke cache for master data
+	locationController.LoadMasterData()
 }
 
 //func setSwagger(container container.Container, e *echo.Echo) {
