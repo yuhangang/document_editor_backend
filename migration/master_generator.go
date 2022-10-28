@@ -4,9 +4,7 @@ import (
 	"echoapp/container"
 	"echoapp/model"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"gorm.io/gorm"
@@ -15,21 +13,20 @@ import (
 // InitMasterData creates the master data used in this application.
 func InitMasterData(container container.Container) {
 	errs := make(chan error)
-	fmt.Println("init Master data ...")
 	if container.GetConfig().Extension.MasterGenerator {
 
 		initContinentsErr := initContinentData(container, errs)
 		if initContinentsErr != nil {
-			log.Fatal(initContinentsErr)
+			container.GetLogger().GetZapLogger().Fatal(initContinentsErr)
 		}
 		initCountriesErr := initCountriesData(container, errs)
 		if initCountriesErr != nil {
-			log.Fatal(initCountriesErr)
+			container.GetLogger().GetZapLogger().Fatal(initCountriesErr)
 		}
 		initCitiesErr := initCitiesData(container, errs)
 		if initCitiesErr != nil {
 
-			fmt.Println(1000, initCitiesErr)
+			container.GetLogger().GetZapLogger().Fatal(1000, initCitiesErr)
 
 		}
 
@@ -91,7 +88,6 @@ func initCitiesData(container container.Container, errs chan error) error {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var cities []model.City
 	err = json.Unmarshal(byteValue, &cities)
-	fmt.Println(len(cities))
 
 	const size = 100
 	var j int

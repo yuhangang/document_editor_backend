@@ -4,7 +4,6 @@ import (
 	"echoapp/container"
 	"echoapp/model"
 	"echoapp/model/dto"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -29,18 +28,15 @@ func NewUserController(l *log.Logger, container container.Container) UserControl
 func (u *userController) CreateUserDevice(c echo.Context) error {
 	dto := dto.NewDeviceInfoDto()
 	if err := c.Bind(dto); err != nil {
-		fmt.Println("yolo 1", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if errors := dto.Validate(); errors != nil {
-		fmt.Println("yolo 2", errors)
 		return c.JSON(http.StatusBadRequest, errors)
 	}
 
 	deviceInfo := dto.Create()
 	dbInsertError := u.container.GetRepo().DB.Create(&deviceInfo).Error
 	if dbInsertError != nil {
-		fmt.Println("yolo 3", dbInsertError)
 		return c.JSON(http.StatusBadRequest, dbInsertError)
 	}
 	return c.JSON(http.StatusOK, deviceInfo)

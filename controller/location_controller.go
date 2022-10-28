@@ -33,7 +33,7 @@ func (p *locationController) GetContinents(c echo.Context) error {
 
 	entry, cacheError := p.container.GetBigCache().Get(constant.Cache_continent_key)
 	if cacheError != nil {
-		p.l.Fatal(cacheError)
+		p.l.Println(cacheError)
 
 	} else {
 		return c.JSONBlob(http.StatusOK, entry)
@@ -55,7 +55,6 @@ func (p *locationController) GetCountries(c echo.Context) error {
 	err := p.container.GetRepo().DB.Model(&model.Country{}).Preload("Cities").Find(&countries).Error
 
 	if err != nil {
-		p.l.Fatal(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
 	}
 	return c.JSONP(http.StatusOK, callback, &countries)
@@ -67,7 +66,6 @@ func (p *locationController) GetCities(c echo.Context) error {
 	err := p.container.GetRepo().DB.Find(&cities).Error
 
 	if err != nil {
-		p.l.Fatal(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
 	}
 	return c.JSONP(http.StatusOK, callback, &cities)
