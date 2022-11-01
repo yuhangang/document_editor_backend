@@ -43,7 +43,7 @@ func (p *locationController) GetContinents(c echo.Context) error {
 
 	if err != nil {
 		p.l.Fatal(err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
 	}
 
 	return c.JSONP(http.StatusOK, callback, &continents)
@@ -55,7 +55,7 @@ func (p *locationController) GetCountries(c echo.Context) error {
 	err := p.container.GetRepo().DB.Model(&model.Country{}).Preload("Cities").Find(&countries).Error
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
 	}
 	return c.JSONP(http.StatusOK, callback, &countries)
 }
@@ -66,7 +66,7 @@ func (p *locationController) GetCities(c echo.Context) error {
 	err := p.container.GetRepo().DB.Find(&cities).Error
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Something wrong with internal server please try again later")
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
 	}
 	return c.JSONP(http.StatusOK, callback, &cities)
 }

@@ -6,7 +6,7 @@ import (
 	"echoapp/logger"
 	"echoapp/migration"
 	"echoapp/repo"
-	"echoapp/repository"
+
 	"echoapp/router"
 	"embed"
 	"log"
@@ -47,7 +47,7 @@ func main() {
 	}
 	conf, env := config.Load(yamlFile)
 	logger := logger.InitLogger(env, zapYamlFile)
-	rep := repository.NewLocationRepository(logger, conf, db)
+
 	repo :=
 		repo.NewRepo(db)
 	bigCache, bigCacheInitError := bigcache.NewBigCache(bigcache.DefaultConfig(24 * time.Hour))
@@ -55,12 +55,9 @@ func main() {
 		log.Fatal(bigCacheInitError)
 		return
 	}
-	container := container.NewContainer(rep, &repo, conf, bigCache, logger, env)
+	container := container.NewContainer(&repo, conf, bigCache, logger, env)
 
 	migration.InitMasterData(container)
-	//ph := controller.NewContinentHandler(e.StdLogger, container)
-	//e.GET("/continents", ph.GetContinents)
-	//e.GET("/countries", ph.GetCountries)
 	router.Init(e, container, &repo)
 	e.Logger.Fatal(e.Start(":1323"))
 }

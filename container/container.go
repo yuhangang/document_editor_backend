@@ -4,7 +4,7 @@ import (
 	"echoapp/config"
 	"echoapp/logger"
 	"echoapp/repo"
-	"echoapp/repository"
+
 	"echoapp/session"
 
 	"github.com/allegro/bigcache/v3"
@@ -12,7 +12,6 @@ import (
 
 // Container represents a interface for accessing the data which sharing in overall application.
 type Container interface {
-	GetRepository() repository.Repository
 	GetRepo() repo.Repo
 	GetConfig() config.Config
 	GetLogger() logger.Logger
@@ -22,7 +21,6 @@ type Container interface {
 
 // container struct is for sharing data which such as database setting, the setting of application and logger in overall this application.
 type container struct {
-	rep      repository.Repository
 	repo     *repo.Repo
 	session  session.Session
 	config   *config.Config
@@ -32,13 +30,8 @@ type container struct {
 }
 
 // NewContainer is constructor.
-func NewContainer(rep repository.Repository, repo *repo.Repo, config *config.Config, bigCache *bigcache.BigCache, logger logger.Logger, env string) Container {
-	return &container{rep: rep, repo: repo, config: config, logger: logger, bigCache: bigCache, env: env}
-}
-
-// GetRepository returns the object of repository.
-func (c *container) GetRepository() repository.Repository {
-	return c.rep
+func NewContainer(repo *repo.Repo, config *config.Config, bigCache *bigcache.BigCache, logger logger.Logger, env string) Container {
+	return &container{repo: repo, config: config, logger: logger, bigCache: bigCache, env: env}
 }
 
 // GetReporeturns the object of repo.

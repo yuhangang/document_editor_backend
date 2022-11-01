@@ -25,7 +25,7 @@ type DeviceInfoDto struct {
 	DeviceModel           string   `validate:"required" json:"device_model"`
 	DeviceManufacturer    string   `validate:"required" json:"device_manufacturer"`
 	DeviceOsVersion       string   `validate:"required" json:"device_os_version"`
-	DeviceOsVersionNumber string   `validate:"required" json:"device_os_version_number"`
+	DeviceOsVersionNumber *float64 `validate:"required" json:"device_os_version_number"`
 	Lat                   *float64 `json:"lat"`
 	Lng                   *float64 `json:"lng"`
 	DeviceUserId          *uint    `json:"device_user_id"`
