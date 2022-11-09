@@ -33,31 +33,33 @@ const (
 )
 
 func main() {
+
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	e := echo.New()
-	db, err := migration.CreateDB()
 
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	conf, env := config.Load(yamlFile)
-	logger := logger.InitLogger(env, zapYamlFile)
 
-	repo :=
-		repo.NewRepo(db)
+	conf, env, commandArgs := config.Load(yamlFile)
+	logger := logger.InitLogger(env, zapYamlFile)
+	db, err := migration.CreateDB(commandArgs)
+	repository := repo.NewDocumentFileRepository(logger, conf, db)
+
 	bigCache, bigCacheInitError := bigcache.NewBigCache(bigcache.DefaultConfig(24 * time.Hour))
 	if bigCacheInitError != nil {
 		log.Fatal(bigCacheInitError)
 		return
 	}
-	container := container.NewContainer(&repo, conf, bigCache, logger, env)
+
+	container := container.NewContainer(&repository, conf, bigCache, logger, env)
 
 	migration.InitMasterData(container)
-	router.Init(e, container, &repo)
+	router.Init(e, container)
 	e.Logger.Fatal(e.Start(":1323"))
 }

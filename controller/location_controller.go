@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"echoapp/constant"
+	constant "echoapp/commons"
 	"echoapp/container"
 	"echoapp/model"
 	"encoding/json"
@@ -52,7 +52,7 @@ func (p *locationController) GetContinents(c echo.Context) error {
 func (p *locationController) GetCountries(c echo.Context) error {
 	callback := c.QueryParam("callback")
 	var countries []model.Country
-	err := p.container.GetRepo().DB.Model(&model.Country{}).Preload("Cities").Find(&countries).Error
+	err := p.container.GetRepository().Model(&model.Country{}).Preload("Cities").Find(&countries).Error
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
@@ -63,7 +63,7 @@ func (p *locationController) GetCountries(c echo.Context) error {
 func (p *locationController) GetCities(c echo.Context) error {
 	callback := c.QueryParam("callback")
 	var cities []model.City
-	err := p.container.GetRepo().DB.Find(&cities).Error
+	err := p.container.GetRepository().Find(&cities).Error
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
@@ -75,7 +75,7 @@ func (p *locationController) LoadMasterData() ([]model.Continent, error) {
 	// Pre cached query of master data
 
 	var continents []model.Continent
-	queryError := p.container.GetRepo().DB.Model(&model.Continent{}).Preload("Countries.Cities").Find(&continents).Error
+	queryError := p.container.GetRepository().Model(&model.Continent{}).Preload("Countries.Cities").Find(&continents).Error
 	if queryError == nil {
 		jsonByte, jsonError := json.Marshal(continents)
 		if jsonError == nil {

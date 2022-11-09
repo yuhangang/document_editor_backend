@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"echoapp/constant"
+	constant "echoapp/commons"
 	"echoapp/container"
 	"echoapp/model"
 	"echoapp/model/dto"
@@ -38,7 +38,7 @@ func (u *userController) CreateUserDevice(c echo.Context) error {
 	}
 
 	deviceInfo := dto.Create()
-	tx := u.container.GetRepo().DB.Begin()
+	tx := u.container.GetRepository().Begin()
 	var dbInsertError error
 	var user model.DeviceInfo
 	dbErr := tx.Take(&user).Error
@@ -67,7 +67,7 @@ func (u *userController) CreateUserDevice(c echo.Context) error {
 func (u *userController) GetDevices(c echo.Context) error {
 	callback := c.QueryParam("callback")
 	var deviceInfo []model.DeviceInfo
-	err := u.container.GetRepo().DB.Find(&deviceInfo).Error
+	err := u.container.GetRepository().Find(&deviceInfo).Error
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)

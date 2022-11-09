@@ -1,22 +1,25 @@
 package controller
 
 import (
-	"echoapp/constant"
+	constant "echoapp/commons"
 	"echoapp/container"
 	"echoapp/model"
+	"echoapp/repo"
 	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+	uuid "github.com/satori/go.uuid"
 )
 
 type DocumentFileController interface {
 	CreateDocumentFile(c echo.Context) error
 	GetDocumentFiles(c echo.Context) error
 	UpdateDocumentFile(c echo.Context) error
+	DeleteDocumentFile(c echo.Context) error
+	GetDocumentFileById(c echo.Context) error
 }
 
 // Products is a http.Handler
@@ -25,8 +28,8 @@ type documentFileController struct {
 	container container.Container
 }
 
-func (u *documentFileController) getDB() *gorm.DB {
-	return u.container.GetRepo().DB
+func (u *documentFileController) getDB() repo.Repository {
+	return u.container.GetRepository()
 }
 
 func NewDocumentFileController(l *log.Logger, container container.Container) DocumentFileController {
@@ -51,7 +54,14 @@ func (u *documentFileController) CreateDocumentFile(c echo.Context) error {
 		u.container.GetLogger().GetZapLogger().Debugln(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
 	}
+
+	var uuidErr error
+	documentId := uuid.Must(uuid.NewV4(), uuidErr).String()
+	if uuidErr != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
+	}
 	newDocument.DeviceId = device.DeviceId
+	newDocument.DocumentId = documentId
 
 	insertError := u.getDB().Create(&newDocument).Error
 	if insertError != nil {
@@ -87,7 +97,7 @@ type DocumentListResponse struct {
 }
 
 func (u *documentFileController) UpdateDocumentFile(c echo.Context) error {
-	docId := c.QueryParam("id")
+	docId := c.Param("id")
 	if len(docId) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, constant.InternalServerErrorMsg)
 	}
@@ -96,7 +106,7 @@ func (u *documentFileController) UpdateDocumentFile(c echo.Context) error {
 	var exists bool
 	checkExistsError := u.getDB().Model(&model.DocumentFile{}).
 		Select("count(*) > 0").
-		Where("id = ?", docId).
+		Where("document_id = ?", docId).
 		Find(&exists).
 		Error
 
@@ -113,12 +123,70 @@ func (u *documentFileController) UpdateDocumentFile(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
 	}
 
-	var document model.DocumentFile
-
-	insertError := u.getDB().Model(&document).Where("id = ?", docId).UpdateColumns(&columnsToUpdate).Error
+	insertError := u.getDB().Model(&model.DocumentFile{}).Where("document_id = ?", docId).UpdateColumns(&columnsToUpdate).Error
 	if insertError != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
 	}
 
-	return c.JSON(http.StatusOK, &document)
+	var documentFile model.DocumentFile
+	queryError := u.getDB().
+		Where("document_id = ?", docId).
+		First(&documentFile).
+		Error
+
+	if queryError != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
+	}
+
+	return c.JSON(http.StatusOK, &documentFile)
+}
+
+func (u *documentFileController) GetDocumentFileById(c echo.Context) error {
+	docId := c.Param("id")
+	if len(docId) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, constant.InternalServerErrorMsg)
+	}
+
+	var documentFile model.DocumentFile
+	queryError := u.getDB().
+		Where("document_id = ?", docId).
+		First(&documentFile).
+		Error
+
+	if queryError != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
+	}
+
+	return c.JSON(http.StatusOK, &documentFile)
+}
+
+func (u *documentFileController) DeleteDocumentFile(c echo.Context) error {
+	docId := c.Param("id")
+	device, jwtErr := u.decryptJWT(c)
+	if jwtErr != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
+	}
+	if len(docId) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, constant.InternalServerErrorMsg)
+	}
+
+	var documentFile model.DocumentFile
+	queryError := u.getDB().
+		Where("document_id = ?", docId).
+		First(&documentFile).
+		Error
+	if device.DeviceId != documentFile.DeviceId {
+		return echo.NewHTTPError(http.StatusUnauthorized, constant.UnauthorizedErrorMsg)
+	}
+
+	if queryError != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
+	}
+
+	deletionError := u.getDB().Delete(&documentFile, documentFile.ID).Error
+	if deletionError != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, constant.InternalServerErrorMsg)
+	}
+
+	return c.JSON(http.StatusOK, "Document deleted.")
 }

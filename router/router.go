@@ -3,8 +3,6 @@ package router
 import (
 	"echoapp/container"
 	"echoapp/controller"
-	"echoapp/repo"
-
 	_ "echoapp/docs" // for using echo-swagger
 	"echoapp/middleware"
 
@@ -12,12 +10,12 @@ import (
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 )
 
-func Init(e *echo.Echo, container container.Container, repo *repo.Repo) {
-	setLocationController(e, &container, repo)
+func Init(e *echo.Echo, container container.Container) {
+	setControllers(e, &container)
 	// setSwagger(container, e)
 }
 
-func setLocationController(e *echo.Echo, container *container.Container, repo *repo.Repo) {
+func setControllers(e *echo.Echo, container *container.Container) {
 	locationController := controller.NewLocationController(e.StdLogger, *container)
 	userController := controller.NewUserController(e.StdLogger, *container)
 	documentFileController := controller.NewDocumentFileController(e.StdLogger, *container)
@@ -49,7 +47,9 @@ func setLocationController(e *echo.Echo, container *container.Container, repo *r
 	r.GET("", authController.Restricted)
 	r.GET("/documents", documentFileController.GetDocumentFiles)
 	r.POST("/documents", documentFileController.CreateDocumentFile)
-	r.PUT("/documents", documentFileController.UpdateDocumentFile)
+	r.GET("/documents/:id", documentFileController.GetDocumentFileById)
+	r.PUT("/documents/:id", documentFileController.UpdateDocumentFile)
+	r.DELETE("/documents/:id", documentFileController.DeleteDocumentFile)
 
 	// initial invoke cache for master data
 	locationController.LoadMasterData()

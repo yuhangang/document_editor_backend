@@ -12,7 +12,7 @@ import (
 
 // Container represents a interface for accessing the data which sharing in overall application.
 type Container interface {
-	GetRepo() repo.Repo
+	GetRepository() repo.Repository
 	GetConfig() config.Config
 	GetLogger() logger.Logger
 	GetEnv() string
@@ -21,22 +21,22 @@ type Container interface {
 
 // container struct is for sharing data which such as database setting, the setting of application and logger in overall this application.
 type container struct {
-	repo     *repo.Repo
-	session  session.Session
-	config   *config.Config
-	bigCache *bigcache.BigCache
-	logger   logger.Logger
-	env      string
+	repository *repo.Repository
+	session    session.Session
+	config     *config.Config
+	bigCache   *bigcache.BigCache
+	logger     logger.Logger
+	env        string
 }
 
 // NewContainer is constructor.
-func NewContainer(repo *repo.Repo, config *config.Config, bigCache *bigcache.BigCache, logger logger.Logger, env string) Container {
-	return &container{repo: repo, config: config, logger: logger, bigCache: bigCache, env: env}
+func NewContainer(repository *repo.Repository, config *config.Config, bigCache *bigcache.BigCache, logger logger.Logger, env string) Container {
+	return &container{repository: repository, config: config, logger: logger, bigCache: bigCache, env: env}
 }
 
-// GetReporeturns the object of repo.
-func (c *container) GetRepo() repo.Repo {
-	return *c.repo
+// GetRepository returns the object of repo.
+func (c *container) GetRepository() repo.Repository {
+	return *c.repository
 }
 
 // GetSession returns the object of session.

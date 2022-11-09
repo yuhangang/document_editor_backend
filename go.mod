@@ -19,6 +19,14 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/go-redis/redis/v7 v7.4.1 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
+	github.com/go-redis/redis/v9 v9.0.0-rc.1 // indirect
+)
+
+require (
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/garyburd/redigo v1.6.4 // indirect
@@ -34,6 +42,7 @@ require (
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/satori/go.uuid v1.2.0
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect

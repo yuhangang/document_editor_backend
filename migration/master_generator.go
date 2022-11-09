@@ -62,7 +62,7 @@ func initContinentData(container container.Container, errs chan error) error {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var continents []model.Continent
 	err = json.Unmarshal(byteValue, &continents)
-	container.GetRepo().DB.Create(&continents)
+	container.GetRepository().Create(&continents)
 	return nil
 }
 
@@ -75,7 +75,7 @@ func initCountriesData(container container.Container, errs chan error) error {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var countries []model.Country
 	err = json.Unmarshal(byteValue, &countries)
-	container.GetRepo().DB.Create(&countries)
+	container.GetRepository().Create(&countries)
 	return nil
 }
 
@@ -96,7 +96,7 @@ func initCitiesData(container container.Container, errs chan error) error {
 		if j > len(cities) {
 			j = len(cities)
 		}
-		db := container.GetRepo().DB.Session(&gorm.Session{CreateBatchSize: len(cities[i:j])})
+		db := container.GetRepository().Session(&gorm.Session{CreateBatchSize: len(cities[i:j])})
 		db.Create(cities[i:j])
 	}
 

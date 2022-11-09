@@ -1,6 +1,7 @@
 package config
 
 import (
+	"echoapp/commons"
 	"embed"
 	"flag"
 	"fmt"
@@ -45,6 +46,10 @@ type Config struct {
 	}
 }
 
+type CommandArgs struct {
+	ClearDB bool `default:"false"`
+}
+
 const (
 	// DEV represents development environment
 	DEV = "develop"
@@ -55,8 +60,13 @@ const (
 )
 
 // Load reads the settings written to the yml file
-func Load(yamlFile embed.FS) (*Config, string) {
+func Load(yamlFile embed.FS) (*Config, string, *CommandArgs) {
 	var env *string
+	argsWithProg := os.Args
+
+	clearDB := commons.Contains(argsWithProg, "--clear-db")
+	commandArgs := CommandArgs{ClearDB: clearDB}
+
 	if value := os.Getenv("WEB_APP_ENV"); value != "" {
 		env = &value
 	} else {
@@ -76,5 +86,5 @@ func Load(yamlFile embed.FS) (*Config, string) {
 		os.Exit(2)
 	}
 
-	return config, *env
+	return config, *env, &commandArgs
 }
