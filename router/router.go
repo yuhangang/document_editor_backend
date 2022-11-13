@@ -5,6 +5,7 @@ import (
 	"echoapp/controller"
 	_ "echoapp/docs" // for using echo-swagger
 	"echoapp/middleware"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -20,6 +21,7 @@ func setControllers(e *echo.Echo, container *container.Container) {
 	userController := controller.NewUserController(e.StdLogger, *container)
 	documentFileController := controller.NewDocumentFileController(e.StdLogger, *container)
 	authController := controller.NewAuthController(e.StdLogger, *container)
+	fileController := controller.NewFileController(e.StdLogger, *container)
 
 	middleware.InitLoggerMiddleware(e, *container)
 
@@ -33,7 +35,7 @@ func setControllers(e *echo.Echo, container *container.Container) {
 	e.POST("/auth", authController.Login)
 
 	e.GET("/", authController.Accessible)
-	r := e.Group("/api")
+	api := e.Group("/api")
 	// Configure middleware with the custom claims type
 	// Middleware
 	e.Use(echoMiddleware.Logger())
@@ -43,13 +45,22 @@ func setControllers(e *echo.Echo, container *container.Container) {
 		Claims:     &controller.JwtDevice{},
 		SigningKey: []byte("secret"),
 	}
-	r.Use(echoMiddleware.JWTWithConfig(jwtConfig))
-	r.GET("", authController.Restricted)
-	r.GET("/documents", documentFileController.GetDocumentFiles)
-	r.POST("/documents", documentFileController.CreateDocumentFile)
-	r.GET("/documents/:id", documentFileController.GetDocumentFileById)
-	r.PUT("/documents/:id", documentFileController.UpdateDocumentFile)
-	r.DELETE("/documents/:id", documentFileController.DeleteDocumentFile)
+	api.Use(echoMiddleware.JWTWithConfig(jwtConfig))
+	api.GET("", authController.Restricted)
+	api.GET("/documents", documentFileController.GetDocumentFiles)
+	api.POST("/documents", documentFileController.CreateDocumentFile)
+	api.GET("/documents/:id", documentFileController.GetDocumentFileById)
+	api.PUT("/documents/:id", documentFileController.UpdateDocumentFile)
+	api.DELETE("/documents/:id", documentFileController.DeleteDocumentFile)
+
+	if os.MkdirAll(controller.FileDirectory, 0777) != nil {
+		panic("Unable to create directory for tagfile!")
+	}
+
+	api.Static("/attachments/upload", "public/upload")
+	api.POST("/attachments", fileController.UploadAttachment)
+	api.GET("/attachments/:id", fileController.GetAttachment)
+	api.DELETE("/attachments/:id", fileController.DeleteAttachment)
 
 	// initial invoke cache for master data
 	locationController.LoadMasterData()
