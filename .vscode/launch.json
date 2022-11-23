@@ -1,12 +1,14 @@
 {
-    "version": "0.2.0",
+    "version": "2.0.0",
     "configurations": [
+      
       {
         "name": "Launch Package",
         "type": "go",
         "request": "launch",
         "mode": "debug",
         "program": "${workspaceFolder}/main.go",
+        "preLaunchTask": "compose-up-dev"
      //   "args": ["-clear-db"]
       }
     ]

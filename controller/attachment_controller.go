@@ -35,7 +35,7 @@ func NewFileController(l *log.Logger, container container.Container) AttachmentC
 
 func (u *attachmentController) GetAttachment(c echo.Context) error {
 	attachmentId := c.Param("id")
-	return c.Attachment(attachmentId, path.Join(FileDirectory, attachmentId))
+	return c.Attachment(attachmentId, attachmentId)
 }
 
 func (u *attachmentController) UploadAttachment(c echo.Context) error {
@@ -66,7 +66,7 @@ func (u *attachmentController) UploadAttachment(c echo.Context) error {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, fmt.Sprintf("<p>File %s uploaded successfully.</p>", file.Filename))
+	return c.HTML(http.StatusOK, file.Filename)
 }
 
 func (u *attachmentController) DeleteAttachment(c echo.Context) error {

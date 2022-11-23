@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "compose-build-dev",
+      "command": "docker-compose -f docker-compose.dev.yml build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+        "type": "shell",
+        "label": "compose-up-dev",
+        "command": "docker-compose -f docker-compose.dev.yml up -d ",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "dependsOn":["compose-build-dev"]
+      },
+  ]
+}

@@ -56,10 +56,9 @@ func setControllers(e *echo.Echo, container *container.Container) {
 	if os.MkdirAll(controller.FileDirectory, 0777) != nil {
 		panic("Unable to create directory for tagfile!")
 	}
-
+	e.GET("/attachments/:id", fileController.GetAttachment)
 	api.Static("/attachments/upload", "public/upload")
 	api.POST("/attachments", fileController.UploadAttachment)
-	api.GET("/attachments/:id", fileController.GetAttachment)
 	api.DELETE("/attachments/:id", fileController.DeleteAttachment)
 
 	// initial invoke cache for master data
